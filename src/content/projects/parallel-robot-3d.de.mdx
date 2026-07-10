@@ -1,0 +1,33 @@
+---
+title: "3D-Visualisierung & Steuerung eines Parallelroboters"
+summary: "Eine Windows-Anwendung zur 3D-Visualisierung und Steuerung eines maßgefertigten Parallelroboters — SolidWorks-Modelle animiert in WPF, inverse Kinematik und bidirektionale serielle Kommunikation mit der Hardware-Platine."
+accent: "violet"
+role: "Engineer · Architekt"
+year: 2019
+tech:
+  - "C#"
+  - "WPF"
+  - "MVVM"
+  - "SolidWorks API"
+  - "3D Graphics"
+  - "Serial Communication"
+tags: ["desktop", "3d", "robotics", "hardware"]
+featured: true
+order: 1
+lang: "de"
+---
+
+## Überblick
+
+Ich habe ein Windows-basiertes 3D-Visualisierungs- und Steuersystem für einen maßgefertigten Parallelroboter entworfen. Die Anwendung importiert SolidWorks-CAD-Modelle und animiert sie in einer WPF-Umgebung — die Bewegung folgt in Echtzeit Parametern, die der Benutzer vorgibt.
+
+## Highlights
+
+- **Inverse Kinematik** übersetzt das Ziel des End-Effektors in Gelenkwinkel für den Parallelmechanismus des Roboters.
+- **Bidirektionale serielle Kommunikation** mit der Hardware-Platine für direktes Feedback im laufenden Betrieb.
+- **MVVM** für eine saubere Trennung zwischen Visualisierung, Kinematik-Kern und UI.
+- Die Architektur ist so ausgelegt, dass neue Roboter-Konfigurationen und Hardware-Platinen ergänzt werden können, ohne die Visualisierungsschicht anzufassen.
+
+## Was ich daraus gelernt habe
+
+Den Spagat zwischen echter Hardware und einer polierten UI meistert man am besten, wenn man die Visualisierung als dünnen Client über einem soliden Kinematik- und Kommunikations-Kern behandelt. Die Disziplin, von Anfang an für Testbarkeit zu entwerfen, hat sich ausgezahlt — die meisten Fehlerfälle waren ohne den Roboter im Loop reproduzierbar.

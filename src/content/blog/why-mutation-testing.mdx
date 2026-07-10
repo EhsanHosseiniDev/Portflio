@@ -1,0 +1,33 @@
+---
+title: "Mutation testing earned its keep on a discount engine"
+summary: "Why I reach for mutation testing on business-rule-heavy code — and a couple of stories from a retail discount system where it caught real bugs that line coverage missed."
+publishedAt: 2026-05-14
+tags: ["testing", "csharp", "engineering"]
+lang: "en"
+---
+
+If you've spent time in business-rule-heavy backends — think pricing, discounts, eligibility, billing — you know the dirty secret of unit tests there: it's easy to write tests that *execute* the rule code without actually *checking* the business behavior.
+
+You get 90% line coverage. Everyone feels safe. Then a rule changes, a bug slips through, and the post-mortem is some variation of: "the test still passed, but it wasn't really testing the right thing."
+
+## Mutation testing in one sentence
+
+A mutation testing tool deliberately introduces small bugs into your code (flip a `>` to `>=`, swap `||` for `&&`, return `null` instead of the computed value), then runs your test suite against each "mutant." If your tests still pass, the mutant **survived** — meaning your test suite *didn't actually verify the behavior it was supposed to*.
+
+## What it caught on a real codebase
+
+On the discount engine I worked on, mutation testing flagged a handful of survived mutants that, on inspection, were real holes:
+
+- A boundary condition where the discount applied at exactly the minimum cart value — tests covered "below" and "well above," but never "exactly." Flipping `>` to `>=` survived. We'd have shipped a bug that double-applied at the threshold.
+- A rule combination where two overlapping promotions silently took the *first* match instead of the most favorable one — tests only verified each rule in isolation.
+
+Both were one-line fixes once spotted, and both would have been embarrassing in production.
+
+## When it's worth it
+
+Mutation testing isn't free — it can multiply your test runtime by an order of magnitude. So I use it selectively:
+
+- **Yes** for the business-logic core where bugs are expensive: pricing, eligibility, financial computations, security checks.
+- **No** for plumbing — controllers, DTOs, simple CRUD. Line coverage is enough there.
+
+The rule of thumb: if a wrong answer here would cost money or upset users, mutation testing earns its keep.

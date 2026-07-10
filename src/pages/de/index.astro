@@ -1,0 +1,18 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Hero from '~/components/Hero.astro';
+import About from '~/components/About.astro';
+import Skills from '~/components/Skills.astro';
+import Projects from '~/components/Projects.astro';
+import BlogList from '~/components/BlogList.astro';
+import Contact from '~/components/Contact.astro';
+---
+
+<BaseLayout title="Ehsan Hosseini" lang="de">
+  <Hero lang="de" />
+  <About lang="de" />
+  <Skills lang="de" />
+  <Projects lang="de" limit={6} />
+  <BlogList lang="de" limit={4} />
+  <Contact lang="de" />
+</BaseLayout>

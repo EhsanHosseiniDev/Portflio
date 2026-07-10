@@ -1,0 +1,32 @@
+---
+title: "Oil Tanker Volume Measurement & Certification System"
+summary: "A hardware-software system that measures internal tanker volume via water displacement, ingests PLC and weighbridge data, and generates official certification documents."
+accent: "cyan"
+role: "Engineer · Hardware Integration"
+year: 2021
+tech:
+  - "C#"
+  - ".NET"
+  - "Windows Services"
+  - "SQL Server"
+  - "PLC Integration"
+tags: ["industrial", "iot", "hardware", "certification"]
+featured: true
+order: 2
+lang: "en"
+---
+
+## Overview
+
+Built a comprehensive hardware-software system for oil tanker volume assessment and certification. PLC-controlled sensors and valves drive a water-displacement procedure to calculate internal tank volume; sensor and weighbridge data feed certification documents that conform to petroleum-industry standards.
+
+## What it does
+
+- Coordinates PLC actions (valve sequencing, sensor sampling) through a deterministic state machine.
+- Streams weighbridge and sensor data into SQL Server with replay-safe storage so audits can rebuild any run.
+- Applies **domain-specific calibration algorithms** based on petroleum-industry standards to produce certifiable outputs.
+- Generates the official certification documents directly from measurement records — no manual transcription.
+
+## Why it was interesting
+
+Real-world physical processes don't forgive flaky software. The design choices were less about clever code and more about handling failure modes: a stuck valve, a sensor dropout, a network blip mid-procedure. Idempotent state transitions, persisted intermediate readings, and clear operator UI for paused runs were the most valuable parts of the system.

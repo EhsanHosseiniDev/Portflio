@@ -1,0 +1,98 @@
+---
+import { getCollection } from 'astro:content';
+import ProjectCard from './ProjectCard.astro';
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+  limit?: number;
+  showFilter?: boolean;
+}
+const { lang, limit, showFilter = true } = Astro.props;
+const t = useTranslations(lang);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const allRaw = await getCollection('projects', ({ data }) => !data.draft && data.lang === lang);
+const all = allRaw.sort((a, b) => (a.data.order ?? 100) - (b.data.order ?? 100));
+const list = limit ? all.slice(0, limit) : all;
+
+// Build filter chips from tags + a few key tech keywords
+const tagSet = new Set<string>();
+for (const p of list) {
+  for (const tg of p.data.tags ?? []) tagSet.add(tg);
+}
+const filters = ['all', ...Array.from(tagSet).sort()];
+---
+
+<section id="projects" class="section">
+  <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 reveal">
+    <div>
+      <span class="section-eyebrow">{t('projects.eyebrow')}</span>
+      <h2 class="heading mt-4">{t('projects.title')}</h2>
+      <p class="text-ink-dim mt-3 max-w-xl">{t('projects.subtitle')}</p>
+    </div>
+    {limit && (
+      <a href={lang === 'de' ? `${base}/de/projects` : `${base}/projects`} class="btn-ghost self-start sm:self-auto">
+        {t('projects.viewAll')} →
+      </a>
+    )}
+  </div>
+
+  {showFilter && filters.length > 1 && (
+    <div id="project-filter" class="mt-8 flex flex-wrap gap-2 reveal">
+      {filters.map((f, i) => (
+        <button
+          type="button"
+          class={`chip cursor-pointer transition-all ${i === 0 ? 'chip-active' : ''}`}
+          data-filter={f}
+        >
+          {f === 'all' ? t('projects.filter.all') : f}
+        </button>
+      ))}
+    </div>
+  )}
+
+  <div id="project-grid" class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    {list.map((p) => {
+      const cleanSlug = p.slug.replace(/\.de$/, '');
+      return (
+        <div class="reveal">
+          <ProjectCard
+            project={p}
+            href={(lang === 'de' ? `${base}/de/projects/` : `${base}/projects/`) + cleanSlug}
+            readLabel={t('projects.readMore')}
+          />
+        </div>
+      );
+    })}
+  </div>
+</section>
+
+{showFilter && (
+  <script is:inline>
+    (() => {
+      const root = document.getElementById('project-filter');
+      const grid = document.getElementById('project-grid');
+      if (!root || !grid) return;
+      const buttons = root.querySelectorAll('[data-filter]');
+      buttons.forEach((b) => {
+        b.addEventListener('click', () => {
+          buttons.forEach((x) => x.classList.remove('chip-active'));
+          b.classList.add('chip-active');
+          const f = b.getAttribute('data-filter');
+          const cards = grid.querySelectorAll('.project-card');
+          cards.forEach((card) => {
+            const parent = card.parentElement;
+            if (!parent) return;
+            if (f === 'all') {
+              parent.style.display = '';
+              return;
+            }
+            const tags = (card.getAttribute('data-tags') || '').toLowerCase();
+            parent.style.display = tags.includes(f.toLowerCase()) ? '' : 'none';
+          });
+        });
+      });
+    })();
+  </script>
+)}

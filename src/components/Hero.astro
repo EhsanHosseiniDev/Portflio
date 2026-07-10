@@ -1,0 +1,91 @@
+---
+import HeroScene from './HeroScene.tsx';
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section class="relative overflow-hidden min-h-[92vh] flex items-center">
+  <!-- 3D Scene as background -->
+  <div class="absolute inset-0 z-0">
+    <HeroScene client:only="react" />
+  </div>
+
+  <!-- Vignette / dim overlay so text reads -->
+  <div
+    class="absolute inset-0 z-[1] pointer-events-none"
+    style="background: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(5,6,15,0) 0%, rgba(5,6,15,0.55) 60%, rgba(5,6,15,0.9) 100%);"
+  ></div>
+
+  <div class="container-x relative z-10 py-16 sm:py-24">
+    <div class="max-w-2xl reveal">
+      <div class="flex items-center gap-2 mb-6">
+        <span class="inline-flex items-center gap-2 rounded-full border border-line bg-bg-soft/60 px-3 py-1 text-xs font-mono text-ink-dim">
+          <span class="relative inline-flex h-2 w-2">
+            <span class="absolute inset-0 rounded-full bg-neon-lime animate-pulse-glow"></span>
+            <span class="absolute inset-0 rounded-full bg-neon-lime/40 blur-sm"></span>
+          </span>
+          {t('hero.status')}
+        </span>
+        <span class="chip text-xs">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          {t('hero.location')}
+        </span>
+      </div>
+
+      <p class="text-ink-dim mb-3 font-mono text-sm tracking-wider">
+        <span class="text-neon-cyan">{'>'}</span> {t('hero.greeting')}
+        <span class="inline-block w-2 h-4 bg-neon-cyan animate-blink align-middle ml-1"></span>
+      </p>
+
+      <h1 class="font-display text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight leading-[1.05] mb-4">
+        Seyed Ehsan
+        <br />
+        <span class="text-grad glow-text">Hosseini</span>
+      </h1>
+
+      <p class="text-xl sm:text-2xl font-display font-medium text-ink mb-6">
+        {t('hero.role')}
+      </p>
+
+      <p class="text-ink-dim text-base sm:text-lg leading-relaxed mb-8 max-w-xl">
+        {t('hero.tagline')}
+      </p>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <a href="#projects" class="btn-primary">
+          {t('hero.cta.projects')}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="rtl-flip"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+        <a href="#contact" class="btn-ghost">
+          {t('hero.cta.contact')}
+        </a>
+      </div>
+
+      <!-- Tech ticker -->
+      <div class="mt-12 flex flex-wrap gap-x-6 gap-y-2 text-xs font-mono text-ink-mute">
+        <span>.NET 8</span>
+        <span class="text-neon-cyan/60">·</span>
+        <span>C#</span>
+        <span class="text-neon-cyan/60">·</span>
+        <span>Clean Architecture</span>
+        <span class="text-neon-cyan/60">·</span>
+        <span>DDD / CQRS</span>
+        <span class="text-neon-cyan/60">·</span>
+        <span>Microservices</span>
+        <span class="text-neon-cyan/60">·</span>
+        <span>RAG / LLM</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-ink-mute">
+    <span class="text-[10px] font-mono uppercase tracking-widest">scroll</span>
+    <div class="w-px h-10 bg-gradient-to-b from-neon-cyan to-transparent"></div>
+  </div>
+</section>

@@ -1,0 +1,35 @@
+---
+title: "Drei Dinge, die ich vor dem Go-Live einer RAG-Pipeline gerne gewusst hätte"
+summary: "Hart erarbeitete Notizen zur Integration LLM-gestützter Features und einer Retrieval-Augmented Pipeline in ein produktives .NET-Backend — zu Latenz, Kosten und strukturierten Ausgaben."
+publishedAt: 2026-05-07
+tags: ["ai", "rag", "llm", "engineering"]
+lang: "de"
+---
+
+Seit knapp einem Jahr bringe ich LLM-gestützte Features in ein produktives .NET-Backend. Die meisten Überraschungen hatten nichts mit den Modellen selbst zu tun — sie betrafen das langweilige Engineering drumherum. Drei Dinge, die ich gerne früher internalisiert hätte:
+
+## 1. Latenz ist deine eigentliche Produkt-Spec
+
+Die Qualität des Modells ist okay. Die **p95-Latenz** des Modells entscheidet, ob ein Feature funktioniert oder kaputt wirkt. Eine 1,2-Sekunden-Antwort fühlt sich magisch an; eine 6-Sekunden-Antwort wirkt defekt — selbst wenn es exakt derselbe Text ist.
+
+Was den Unterschied gemacht hat:
+
+- **Streaming** der Antwort, wo die UI das zulässt. Sobald das erste Token erscheint, sinkt die wahrgenommene Latenz drastisch.
+- **Caching der Retrieval-Ergebnisse** für wiederholte Queries. Ein überraschend großer Teil des realen Traffics ist „fast wieder dasselbe".
+- **Konsequente Verkleinerung des Contexts.** Jeder zusätzliche Chunk, den du ins Prompt stopfst, kostet Latenz *und* Geld *und* oft Qualität.
+
+## 2. Strukturierte Ausgaben sind nicht optional
+
+Wenn ein Modell-Output downstream Code befüllt, brauchst du ein Schema. JSON-Mode, Tool-Use oder wie auch immer dein SDK das nennt — vom ersten Tag an einsetzen.
+
+Ohne das schreibst du Parser für jedes-Mal-leicht-andere Freitext-Antworten — und an einem Dienstag in Produktion bricht etwas auf eine Weise, die sowohl deine Schuld als auch nicht deine Schuld ist.
+
+## 3. Die billigsten Tokens sind die, die du nicht sendest
+
+Kostenoptimierung ist keine separate Phase — sie ist ein kontinuierlicher Designdruck:
+
+- Retrieval eng halten. Wenn dein top-k 10 ist, frag dich, ob 4 dieselben Fragen beantwortet hätten.
+- Prompts kurz halten. Lange Präambeln, die „den Task nur klarer beschreiben", verdienen ihren Platz meist nicht.
+- Berechnete Embeddings wiederverwenden — nicht bei jedem Request neu rechnen.
+
+Nichts davon ist exotisch. Es ist einfach Engineering-Disziplin in einem neuen Medium. Teams, die gute KI-Features liefern, benutzen keine besseren Modelle — sie behandeln das Modell als eine Komponente in einem System, das sie verstehen.

@@ -1,0 +1,33 @@
+---
+title: "Rabatt-Engine für einen landesweiten Einzelhändler"
+summary: "Eine flexible Rabatt-Engine mit hohem Durchsatz für komplexe Regelkompositionen in einem landesweiten Einzelhandelsnetz — der Geschäftsregel-Kern ist durch Mutation Testing abgesichert."
+accent: "lime"
+role: "Senior Backend Developer"
+year: 2024
+tech:
+  - "C#"
+  - ".NET"
+  - "EF Core"
+  - "SQL Server"
+  - "CQRS"
+  - "xUnit"
+tags: ["backend", "business-logic", "performance"]
+featured: false
+order: 4
+lang: "de"
+---
+
+## Das Problem
+
+Ein landesweites Einzelhandelsnetz brauchte ein Rabattsystem, das überlappende Aktionsregeln (Kategorien, Lieferanten, Zeitfenster, Kundensegmente) ausdrücken kann und unter Spitzenlast trotzdem schnell und vorhersagbar bleibt.
+
+## Vorgehen
+
+- Regelkomposition modelliert als kleine, reine Funktionen über einem typisierten Aktions-Kontext — leicht testbar, leicht kombinierbar.
+- **CQRS** trennt den schreibenden Regel-Editor sauber vom lesenden Hot-Path.
+- Starker Einsatz von Integrationstests für die Regel-Engine; **Mutation Testing** stellte sicher, dass Tests Regressionen in der Geschäftslogik wirklich abfangen — und nicht nur Zeilen ausführen.
+- Optimierung der SQL-Server-Reads (Indexierung, Query-Pläne, Hot-Paths), damit die Rabattauswertung in der Spitze im Latenz-Budget bleibt.
+
+## Ergebnis
+
+Das System ging mit rund 70% Test-Coverage live und überstand Spitzenlast ohne Performance-Regressionen. Mutation Testing fand reale Bugs in der Regelkomposition, die reine Zeilen-Coverage übersehen hatte.

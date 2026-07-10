@@ -1,0 +1,70 @@
+---
+import { getCollection } from 'astro:content';
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+  limit?: number;
+  showHeading?: boolean;
+}
+const { lang, limit, showHeading = true } = Astro.props;
+const t = useTranslations(lang);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const allRaw = await getCollection('blog', ({ data }) => !data.draft && data.lang === lang);
+const all = allRaw.sort((a, b) => +b.data.publishedAt - +a.data.publishedAt);
+const list = limit ? all.slice(0, limit) : all;
+
+const fmtDate = (d: Date) =>
+  d.toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+
+const wordsPerMinute = 220;
+---
+
+<section id="blog" class="section">
+  {showHeading && (
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 reveal">
+      <div>
+        <span class="section-eyebrow">{t('blog.eyebrow')}</span>
+        <h2 class="heading mt-4">{t('blog.title')}</h2>
+        <p class="text-ink-dim mt-3 max-w-xl">{t('blog.subtitle')}</p>
+      </div>
+      {limit && (
+        <a href={lang === 'de' ? `${base}/de/blog` : `${base}/blog`} class="btn-ghost self-start sm:self-auto">
+          {t('blog.viewAll')} →
+        </a>
+      )}
+    </div>
+  )}
+
+  <div class="mt-10 grid sm:grid-cols-2 gap-5">
+    {list.map((post) => {
+      const words = (post.body ?? '').split(/\s+/).length;
+      const mins = Math.max(1, Math.round(words / wordsPerMinute));
+      const cleanSlug = post.slug.replace(/\.de$/, '');
+      const href = (lang === 'de' ? `${base}/de/blog/` : `${base}/blog/`) + cleanSlug;
+      return (
+        <a href={href} class="card p-6 flex flex-col gap-3 group reveal">
+          <div class="flex items-center gap-2 text-xs font-mono text-ink-mute">
+            <time datetime={post.data.publishedAt.toISOString()}>{fmtDate(post.data.publishedAt)}</time>
+            <span class="opacity-50">·</span>
+            <span>{mins} {t('blog.minRead')}</span>
+          </div>
+          <h3 class="font-display text-xl font-semibold leading-tight group-hover:text-neon-cyan transition-colors">
+            {post.data.title}
+          </h3>
+          <p class="text-ink-dim text-sm leading-relaxed">{post.data.summary}</p>
+          <div class="flex flex-wrap gap-1.5 mt-auto pt-2">
+            {(post.data.tags ?? []).map((tg) => (
+              <span class="chip text-[10px]">#{tg}</span>
+            ))}
+          </div>
+        </a>
+      );
+    })}
+  </div>
+</section>

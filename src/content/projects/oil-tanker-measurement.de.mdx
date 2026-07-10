@@ -1,0 +1,32 @@
+---
+title: "Volumenmess- & Zertifizierungssystem für Öltanker"
+summary: "Ein Hardware-Software-System, das das Innenvolumen eines Tankers per Wasserverdrängung misst, PLC- und Brückenwaagen-Daten erfasst und offizielle Zertifizierungsdokumente generiert."
+accent: "cyan"
+role: "Engineer · Hardware-Integration"
+year: 2021
+tech:
+  - "C#"
+  - ".NET"
+  - "Windows Services"
+  - "SQL Server"
+  - "PLC Integration"
+tags: ["industrial", "iot", "hardware", "certification"]
+featured: true
+order: 2
+lang: "de"
+---
+
+## Überblick
+
+Aufgebaut habe ich ein umfassendes Hardware-Software-System zur Volumenermittlung und Zertifizierung von Öltankern. PLC-gesteuerte Sensoren und Ventile führen ein Wasserverdrängungsverfahren aus, um das Innenvolumen zu berechnen; Sensor- und Brückenwaagen-Daten fließen direkt in Dokumente, die den Standards der Erdölindustrie entsprechen.
+
+## Was es leistet
+
+- Eine deterministische Zustandsmaschine koordiniert die PLC-Aktionen (Ventilreihenfolge, Sensor-Sampling).
+- Brückenwaagen- und Sensorwerte landen replay-sicher in SQL Server, sodass jede Messung für Audits rekonstruierbar bleibt.
+- **Domänenspezifische Kalibrierungs-Algorithmen** nach Erdöl-Standards veredeln die Rohwerte zu zertifizierbaren Ergebnissen.
+- Die offiziellen Zertifizierungsdokumente werden direkt aus den Messdaten erzeugt — ohne manuelle Übertragung.
+
+## Warum es spannend war
+
+Physische Prozesse verzeihen flackernde Software nicht. Die Designentscheidungen drehten sich weniger um eleganten Code als um den Umgang mit Fehlerfällen: ein klemmendes Ventil, ein aussetzender Sensor, ein Netzwerk-Aussetzer mitten im Ablauf. Idempotente Zustandsübergänge, persistierte Zwischenwerte und eine klare Bedienoberfläche für pausierte Läufe waren die wertvollsten Teile des Systems.

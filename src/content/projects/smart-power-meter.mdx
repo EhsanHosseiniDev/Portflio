@@ -1,0 +1,32 @@
+---
+title: "Smart Power Meter Communication System"
+summary: "An IoT system streaming real-time power-meter readings to centralized servers over TCP/IP — distributed ingestion, real-time preprocessing workers, and event-based delivery to consumers."
+accent: "magenta"
+role: "Engineer · Distributed Systems"
+year: 2020
+tech:
+  - "C#"
+  - "TCP/IP"
+  - "Linux"
+  - "SQL Server"
+  - "Event-Driven"
+tags: ["iot", "distributed", "real-time"]
+featured: true
+order: 3
+lang: "en"
+---
+
+## Overview
+
+Designed an IoT-based system that transmits real-time data from smart power meters to centralized servers over raw TCP/IP. The architecture splits ingestion, preprocessing, and delivery into independent workers so the pipeline can absorb traffic spikes without coupling components.
+
+## Architecture
+
+- **Ingestion gateways** terminate TCP connections from meters and shovel raw frames into a durable queue.
+- **Preprocessing workers** decode the proprietary frame format, enrich with metadata, and emit normalized events.
+- **Event delivery** pushes events to downstream consumers (dashboards, billing, alerting) over an event bus — late subscribers replay from the persisted stream.
+- **Backpressure-safe**: the slowest consumer never blocks ingestion.
+
+## Results
+
+The system holds up under sustained high message rates. The clean separation of concerns meant new consumers (a fraud-detection workload, a per-region dashboard) could be added without touching ingestion code.

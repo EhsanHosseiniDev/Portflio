@@ -1,0 +1,41 @@
+---
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section id="contact" class="section">
+  <div class="card relative overflow-hidden p-10 sm:p-14">
+    <div class="absolute inset-0 grid-bg opacity-30 pointer-events-none"></div>
+    <span class="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-neon-violet/20 blur-3xl pointer-events-none"></span>
+    <span class="absolute -bottom-20 -left-20 w-72 h-72 rounded-full bg-neon-cyan/20 blur-3xl pointer-events-none"></span>
+
+    <div class="relative z-10 max-w-2xl reveal">
+      <span class="section-eyebrow">{t('contact.eyebrow')}</span>
+      <h2 class="heading mt-4">{t('contact.title')}</h2>
+      <p class="text-ink-dim mt-4 text-base sm:text-lg leading-relaxed">{t('contact.body')}</p>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="mailto:ehsan.hosseini.dev@gmail.com" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="m22 7-10 5L2 7"/>
+          </svg>
+          {t('contact.email')}
+        </a>
+        <a href="https://www.linkedin.com/in/seyed-ehsan-seyed-hosseini" target="_blank" rel="noreferrer" class="btn-ghost">
+          {t('contact.linkedin')}
+        </a>
+        <a href="https://github.com/" target="_blank" rel="noreferrer" class="btn-ghost">
+          {t('contact.github')}
+        </a>
+      </div>
+
+      <p class="mt-6 font-mono text-xs text-ink-mute select-all">
+        ehsan.hosseini.dev@gmail.com
+      </p>
+    </div>
+  </div>
+</section>

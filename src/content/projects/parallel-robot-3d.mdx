@@ -1,0 +1,33 @@
+---
+title: "3D Visualization & Control of a Parallel Robot"
+summary: "A Windows-based 3D visualization and control system for a custom parallel robot — SolidWorks models animated in WPF, with inverse kinematics and bidirectional serial comms to the hardware board."
+accent: "violet"
+role: "Engineer · Architect"
+year: 2019
+tech:
+  - "C#"
+  - "WPF"
+  - "MVVM"
+  - "SolidWorks API"
+  - "3D Graphics"
+  - "Serial Communication"
+tags: ["desktop", "3d", "robotics", "hardware"]
+featured: true
+order: 1
+lang: "en"
+---
+
+## Overview
+
+Designed a Windows-based 3D visualization and control system for a custom parallel robot. The application imports SolidWorks CAD models and animates them in a WPF environment, reflecting real-time motion driven by user-defined parameters.
+
+## Highlights
+
+- **Inverse kinematics** layer translated end-effector targets into joint angles for the robot's parallel mechanism.
+- **Bidirectional serial communication** with the robot's hardware board for live feedback during operation.
+- **MVVM** for clean separation between the visualization, kinematics core, and UI.
+- Architected so new robot configurations and hardware boards can be plugged in without rewriting the visualization layer.
+
+## What I learned
+
+Bridging real hardware with a polished UI required treating the visualization as a thin client over a robust kinematics + comms core. The discipline of designing for testability paid off heavily when the hardware misbehaved — most failure modes were reproducible without the robot in the loop.

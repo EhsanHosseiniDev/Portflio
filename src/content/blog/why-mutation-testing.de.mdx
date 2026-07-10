@@ -1,0 +1,33 @@
+---
+title: "Warum sich Mutation Testing bei einer Rabatt-Engine ausgezahlt hat"
+summary: "Warum ich bei geschäftslogik-lastigem Code zu Mutation Testing greife — und ein paar Geschichten aus einer Einzelhandels-Rabatt-Engine, in der es echte Bugs fand, die reine Zeilen-Coverage übersehen hatte."
+publishedAt: 2026-05-14
+tags: ["testing", "csharp", "engineering"]
+lang: "de"
+---
+
+Wer schon Zeit in geschäftslogik-lastigen Backends verbracht hat — Pricing, Rabatte, Eligibility, Billing — kennt das schmutzige Geheimnis von Unit-Tests dort: es ist erschreckend einfach, Tests zu schreiben, die den Regel-Code *ausführen*, ohne das *Geschäftsverhalten* tatsächlich zu prüfen.
+
+Du bekommst 90 % Zeilen-Coverage. Alle fühlen sich sicher. Dann ändert sich eine Regel, ein Bug rutscht durch, und das Post-Mortem klingt wie: „Der Test hat noch grün gegeben, aber er hat eigentlich gar nicht das Richtige geprüft."
+
+## Mutation Testing in einem Satz
+
+Ein Mutation-Testing-Tool führt absichtlich kleine Bugs in deinen Code ein (`>` zu `>=`, `||` zu `&&`, `null` statt des berechneten Werts) und lässt deine Test-Suite gegen jeden „Mutanten" laufen. Bleiben die Tests grün, ist der Mutant **überlebt** — die Tests verifizieren das gewünschte Verhalten in Wahrheit nicht.
+
+## Was es in einem echten Codebase gefunden hat
+
+In der Rabatt-Engine, an der ich gearbeitet habe, flaggte Mutation Testing eine Handvoll überlebender Mutanten — bei näherem Hinsehen alles echte Lücken:
+
+- Eine Randbedingung, bei der der Rabatt genau am Mindest-Warenkorbwert greift — Tests deckten „darunter" und „weit darüber" ab, aber „genau auf der Grenze" nicht. Der Wechsel von `>` zu `>=` überlebte. Wir wären mit einem Bug live gegangen, der genau an der Schwelle doppelt rabattiert hätte.
+- Eine Regelkombination, bei der zwei überlappende Promotions still die *erste* statt der *günstigsten* nahmen — Tests prüften jede Regel nur isoliert.
+
+Beide Fixes waren einzeilig — und beide wären in Produktion peinlich gewesen.
+
+## Wann es sich lohnt
+
+Mutation Testing ist nicht gratis — es kann die Testlaufzeit um eine Größenordnung erhöhen. Deshalb setze ich es selektiv ein:
+
+- **Ja** für den Geschäftslogik-Kern, in dem Bugs teuer werden: Pricing, Eligibility, Finanzberechnungen, Security-Checks.
+- **Nein** für Klempnerei — Controller, DTOs, simples CRUD. Zeilen-Coverage reicht da.
+
+Faustregel: Wenn eine falsche Antwort hier Geld kostet oder Nutzer verärgert, zahlt Mutation Testing sich aus.

@@ -1,0 +1,101 @@
+---
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+const homeHref = lang === 'de' ? `${base}/de/` : `${base}/`;
+
+// If we're not on the home page, prefix anchors with home so they navigate back.
+const isHome = Astro.url.pathname.replace(/\/$/, '') === (lang === 'de' ? `${base}/de` : base);
+const anchorBase = isHome ? '' : homeHref;
+
+const links = [
+  { href: `${anchorBase}#about`, label: t('nav.about') },
+  { href: `${anchorBase}#skills`, label: t('nav.skills') },
+  { href: `${anchorBase}#projects`, label: t('nav.projects') },
+  { href: lang === 'de' ? `${base}/de/blog` : `${base}/blog`, label: t('nav.blog') },
+  { href: `${anchorBase}#contact`, label: t('nav.contact') },
+];
+// Toggle language by swapping to the other lang's home (safer than mapping arbitrary paths)
+const otherLangPath = lang === 'de' ? `${base}/` : `${base}/de/`;
+---
+
+<header class="sticky top-0 z-50 backdrop-blur-md bg-bg/70 border-b border-line">
+  <nav class="container-x flex h-16 items-center justify-between">
+    <a href={homeHref} class="group flex items-center gap-2 font-display font-bold text-lg">
+      <span class="relative inline-flex h-8 w-8 items-center justify-center rounded-lg bg-neon-gradient text-bg shadow-neon-soft">
+        <span class="font-mono">E</span>
+        <span class="absolute inset-0 rounded-lg bg-neon-gradient blur-md opacity-50 group-hover:opacity-80 transition-opacity"></span>
+      </span>
+      <span class="hidden sm:inline text-ink">Ehsan<span class="text-neon-cyan">.</span></span>
+    </a>
+
+    <ul class="hidden md:flex items-center gap-1">
+      {links.map((l) => (
+        <li>
+          <a
+            href={l.href}
+            class="px-3 py-2 text-sm text-ink-dim hover:text-neon-cyan rounded-lg transition-colors"
+          >
+            {l.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <div class="flex items-center gap-2">
+      <a
+        href={otherLangPath}
+        class="chip hover:chip-active text-xs"
+        aria-label="Switch language"
+      >
+        {lang === 'de' ? 'EN' : 'DE'}
+      </a>
+      <button
+        id="mobile-menu-btn"
+        class="md:hidden btn-ghost !px-2 !py-2"
+        aria-label="Toggle menu"
+        aria-expanded="false"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="md:hidden hidden border-t border-line">
+    <ul class="container-x py-3 flex flex-col gap-1">
+      {links.map((l) => (
+        <li>
+          <a href={l.href} class="block px-3 py-2 text-ink-dim hover:text-neon-cyan rounded-lg">
+            {l.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</header>
+
+<script is:inline>
+  const btn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  if (btn && menu) {
+    btn.addEventListener('click', () => {
+      const open = menu.classList.toggle('hidden');
+      btn.setAttribute('aria-expanded', String(!open));
+    });
+    menu.querySelectorAll('a').forEach((a) =>
+      a.addEventListener('click', () => menu.classList.add('hidden'))
+    );
+  }
+</script>

@@ -1,0 +1,185 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fonts via Fontsource-like CDN (Bunny — privacy friendly) */
+@import url('https://fonts.bunny.net/css?family=inter:400,500,600,700|space-grotesk:500,600,700|jetbrains-mono:400,500&display=swap');
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    @apply scroll-smooth;
+    background: #05060f;
+  }
+
+  body {
+    @apply font-sans text-ink bg-bg antialiased min-h-screen;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(139, 92, 246, 0.18), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 90% 110%, rgba(34, 211, 238, 0.15), transparent 60%),
+      linear-gradient(180deg, #05060f 0%, #07091a 100%);
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background: rgba(34, 211, 238, 0.35);
+    color: #fff;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #05060f;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #22d3ee, #8b5cf6);
+    border-radius: 999px;
+  }
+}
+
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+  }
+
+  .section {
+    @apply container-x py-24 sm:py-32 relative;
+  }
+
+  .section-eyebrow {
+    @apply inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-neon-cyan font-mono;
+  }
+  .section-eyebrow::before {
+    content: '';
+    @apply block h-px w-8 bg-neon-cyan/60;
+  }
+
+  .heading {
+    @apply font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-ink;
+  }
+
+  .text-grad {
+    @apply bg-clip-text text-transparent bg-neon-gradient bg-[length:200%_200%] animate-gradient-x;
+  }
+
+  .card {
+    @apply relative overflow-hidden rounded-2xl border border-line bg-bg-card/60 backdrop-blur-sm
+           transition-all duration-300;
+  }
+  .card:hover {
+    border-color: rgba(34, 211, 238, 0.4);
+    box-shadow: 0 0 30px rgba(34, 211, 238, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5
+           font-medium text-sm transition-all duration-200 focus:outline-none focus-visible:ring-2
+           focus-visible:ring-neon-cyan/60;
+  }
+  .btn-primary {
+    @apply btn bg-neon-gradient text-bg shadow-neon-soft hover:shadow-neon hover:scale-[1.02];
+  }
+  .btn-ghost {
+    @apply btn border border-line text-ink hover:border-neon-cyan/60 hover:text-neon-cyan;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line bg-bg-soft/60
+           px-3 py-1 text-xs font-mono text-ink-dim;
+  }
+  .chip-active {
+    @apply border-neon-cyan/60 text-neon-cyan shadow-neon-soft;
+  }
+
+  .glow-text {
+    text-shadow: 0 0 20px rgba(34, 211, 238, 0.5), 0 0 40px rgba(139, 92, 246, 0.3);
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(120, 140, 220, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(120, 140, 220, 0.08) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 60% 70% at 50% 40%, black 40%, transparent 75%);
+  }
+
+  /* Decorative scanline overlay */
+  .scanlines {
+    position: relative;
+  }
+  .scanlines::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.02) 0px,
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+    mix-blend-mode: overlay;
+  }
+}
+
+/* Reveal on scroll — simple CSS variant */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Prose tweaks for MDX content */
+.prose-neon {
+  @apply text-ink;
+}
+.prose-neon h1,
+.prose-neon h2,
+.prose-neon h3 {
+  @apply font-display text-ink;
+}
+.prose-neon h2 {
+  @apply text-2xl mt-12 mb-4;
+}
+.prose-neon h3 {
+  @apply text-xl mt-8 mb-3;
+}
+.prose-neon p {
+  @apply leading-7 my-4 text-ink-dim;
+}
+.prose-neon a {
+  @apply text-neon-cyan underline-offset-4 hover:underline;
+}
+.prose-neon code {
+  @apply font-mono text-sm px-1.5 py-0.5 rounded bg-bg-soft border border-line text-neon-cyan;
+}
+.prose-neon pre {
+  @apply font-mono text-sm p-4 rounded-xl bg-bg-soft border border-line overflow-x-auto my-6;
+}
+.prose-neon pre code {
+  @apply bg-transparent border-0 p-0 text-ink;
+}
+.prose-neon ul {
+  @apply list-disc list-outside pl-6 my-4 text-ink-dim space-y-2;
+}
+.prose-neon ol {
+  @apply list-decimal list-outside pl-6 my-4 text-ink-dim space-y-2;
+}
+.prose-neon blockquote {
+  @apply border-l-2 border-neon-cyan/60 pl-4 italic text-ink-dim my-6;
+}
+.prose-neon img {
+  @apply rounded-xl my-6 border border-line;
+}

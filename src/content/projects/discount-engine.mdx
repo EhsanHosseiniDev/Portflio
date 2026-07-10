@@ -1,0 +1,33 @@
+---
+title: "Commercial Discount Engine for a Nationwide Retailer"
+summary: "A flexible, high-throughput discount system handling complex rule composition across a nationwide retail network — backed by a mutation-tested business-rules core."
+accent: "lime"
+role: "Senior Backend Developer"
+year: 2024
+tech:
+  - "C#"
+  - ".NET"
+  - "EF Core"
+  - "SQL Server"
+  - "CQRS"
+  - "xUnit"
+tags: ["backend", "business-logic", "performance"]
+featured: false
+order: 4
+lang: "en"
+---
+
+## The problem
+
+A nationwide retail network needed a discount system flexible enough to express overlapping promotional rules (categories, vendors, time windows, customer segments) while staying fast and predictable under heavy peak-hour load.
+
+## Approach
+
+- Modeled rule composition as small, pure functions over a typed promotional context — easy to test and combine.
+- Used **CQRS** to keep the write-side rule editor decoupled from the read-side hot path.
+- Heavy use of integration tests for the rule engine; **mutation testing** to make sure tests actually caught regressions in the business rules — not just executed lines.
+- Optimized SQL Server reads (indexing, query plans, hot paths) so discount evaluation stayed inside the latency budget at peak.
+
+## Outcome
+
+The system shipped with ~70% test coverage and survived peak load without performance regressions. The mutation-testing discipline caught real bugs in rule composition that line-coverage metrics had missed.

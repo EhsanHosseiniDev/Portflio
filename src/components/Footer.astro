@@ -1,0 +1,22 @@
+---
+import { useTranslations, type Lang } from '~/i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-line mt-24">
+  <div class="container-x py-10 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-ink-mute">
+    <p>© {year} Seyed Ehsan Hosseini</p>
+    <p class="font-mono text-xs">{t('footer.built')}</p>
+    <div class="flex items-center gap-3">
+      <a href="https://www.linkedin.com/in/seyed-ehsan-seyed-hosseini" target="_blank" rel="noreferrer" class="hover:text-neon-cyan transition-colors">LinkedIn</a>
+      <span class="opacity-30">·</span>
+      <a href="mailto:ehsan.hosseini.dev@gmail.com" class="hover:text-neon-cyan transition-colors">Email</a>
+    </div>
+  </div>
+</footer>

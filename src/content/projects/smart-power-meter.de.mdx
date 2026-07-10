@@ -1,0 +1,32 @@
+---
+title: "Kommunikationssystem für Smart-Power-Meter"
+summary: "Ein IoT-System, das Echtzeit-Messwerte von Stromzählern per TCP/IP an zentrale Server überträgt — verteilte Ingestion, Echtzeit-Vorverarbeitung und event-basierte Auslieferung an Konsumenten."
+accent: "magenta"
+role: "Engineer · Verteilte Systeme"
+year: 2020
+tech:
+  - "C#"
+  - "TCP/IP"
+  - "Linux"
+  - "SQL Server"
+  - "Event-Driven"
+tags: ["iot", "distributed", "real-time"]
+featured: true
+order: 3
+lang: "de"
+---
+
+## Überblick
+
+Entworfen habe ich ein IoT-System, das Echtzeit-Daten intelligenter Stromzähler über rohes TCP/IP an zentrale Server schickt. Die Architektur trennt Ingestion, Vorverarbeitung und Auslieferung in unabhängige Worker — so kann die Pipeline Lastspitzen abfedern, ohne dass Komponenten aneinander koppeln.
+
+## Architektur
+
+- **Ingestion Gateways** terminieren die TCP-Verbindungen der Zähler und schaufeln rohe Frames in eine dauerhafte Queue.
+- **Preprocessing Workers** decodieren das proprietäre Frame-Format, reichern Metadaten an und emittieren normalisierte Events.
+- **Event Delivery** schickt Events über einen Event-Bus an Konsumenten (Dashboards, Abrechnung, Alerting) — Spätzieher können vom persistenten Stream nachholen.
+- **Backpressure-sicher**: Der langsamste Konsument blockiert niemals die Ingestion.
+
+## Ergebnis
+
+Das System hält dauerhaft hohen Nachrichtenraten stand. Dank klar getrennter Verantwortlichkeiten konnten neue Konsumenten (Betrugserkennung, regionale Dashboards) ergänzt werden, ohne den Ingestion-Code anzufassen.

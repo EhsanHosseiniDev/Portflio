@@ -1,0 +1,80 @@
+---
+import { useTranslations, type Lang } from '~/i18n/ui';
+import { experience, formatRange } from '~/data/experience';
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const presentLabel = t('experience.present');
+---
+
+<section id="about" class="section">
+  <div class="grid md:grid-cols-3 gap-12">
+    <div class="md:col-span-1 reveal">
+      <span class="section-eyebrow">{t('about.eyebrow')}</span>
+      <h2 class="heading mt-4">{t('about.title')}</h2>
+    </div>
+    <div class="md:col-span-2 space-y-5 text-ink-dim text-base sm:text-lg leading-relaxed reveal">
+      <p>{t('about.body')}</p>
+      <p class="text-ink">
+        <span class="inline-flex items-center gap-2">
+          <span class="relative inline-flex h-2 w-2"><span class="absolute inset-0 rounded-full bg-neon-cyan animate-pulse-glow"></span></span>
+          {t('about.now')}
+        </span>
+      </p>
+
+      <div class="flex flex-wrap gap-2 pt-3">
+        <span class="chip">8+ years</span>
+        <span class="chip">.NET / C#</span>
+        <span class="chip">Clean Architecture</span>
+        <span class="chip">DDD · CQRS · ES</span>
+        <span class="chip">RAG / MCP</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Experience Timeline -->
+  <div class="mt-24">
+    <div class="reveal">
+      <span class="section-eyebrow">{t('experience.eyebrow')}</span>
+      <h3 class="heading mt-4">{t('experience.title')}</h3>
+    </div>
+
+    <ol class="mt-12 relative">
+      <span class="absolute top-0 bottom-0 left-3 sm:left-5 w-px bg-gradient-to-b from-neon-cyan/60 via-neon-violet/40 to-transparent"></span>
+      {experience.map((item) => (
+        <li class="relative pl-12 sm:pl-16 pb-10 reveal">
+          <span class="absolute left-0 sm:left-2 top-2 grid place-items-center">
+            <span class="relative h-6 w-6 rounded-full bg-bg border-2 border-neon-cyan/60 shadow-neon-soft">
+              <span class="absolute inset-1 rounded-full bg-neon-gradient"></span>
+            </span>
+          </span>
+
+          <div class="card p-6">
+            <div class="flex flex-wrap items-baseline justify-between gap-2">
+              <h4 class="font-display text-xl font-semibold">
+                {item.role[lang]}
+                <span class="text-neon-cyan"> @ </span>
+                <span class="text-ink">{item.company}</span>
+              </h4>
+              <span class="font-mono text-xs text-ink-mute">
+                {formatRange(item, lang, presentLabel)}
+              </span>
+            </div>
+            <p class="font-mono text-xs text-ink-mute mt-1">
+              {item.location}{item.remote ? ' · Remote' : ''}
+            </p>
+            <ul class="mt-4 space-y-2 text-ink-dim text-sm sm:text-base leading-relaxed">
+              {item.bullets.map((b) => (
+                <li class="flex gap-2">
+                  <span class="text-neon-cyan mt-1.5 inline-block h-1 w-1 rounded-full bg-neon-cyan flex-shrink-0"></span>
+                  <span>{b[lang]}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

@@ -1,0 +1,35 @@
+---
+title: "Three things I wish I'd known before shipping a RAG pipeline"
+summary: "Hard-won notes from integrating LLM-backed features and a retrieval-augmented pipeline into a production .NET backend — on latency, cost, and structured outputs."
+publishedAt: 2026-05-07
+tags: ["ai", "rag", "llm", "engineering"]
+lang: "en"
+---
+
+I've been shipping LLM-backed features into a production .NET backend for the better part of a year. Most of the surprises weren't about the models themselves — they were about the boring engineering around them. Three things I wish I'd internalized earlier:
+
+## 1. Latency is your real product spec
+
+The model's quality is fine. The model's *p95 latency* is what makes or breaks the feature. A 1.2-second answer feels magical; a 6-second answer feels broken — even if it's literally the same words.
+
+Things that actually moved the needle:
+
+- **Streaming** the response wherever the UI allowed it. Perceived latency drops dramatically once the first token shows up.
+- **Caching retrieval results** for repeated queries. A surprising fraction of real-world traffic is "almost the same thing again."
+- **Reducing context size aggressively.** Every extra retrieved chunk you stuff into the prompt costs you latency *and* money *and* often quality.
+
+## 2. Structured outputs are not optional
+
+If a model is going to feed downstream code, you need a schema. JSON mode, tool-use, or whatever the SDK calls it — use it from day one.
+
+Without it, you'll write parsers for slightly-different-each-time freeform answers, and one Tuesday in production something will break in a way that's somehow both your fault and not.
+
+## 3. The cheapest tokens are the ones you don't send
+
+Cost optimization isn't a separate phase — it's a continuous design pressure:
+
+- Retrieval should be tight. If your top-k is 10, ask whether 4 would have answered the same questions.
+- Prompts should be short. Long preambles that "just describe the task more clearly" usually don't earn their place.
+- Reuse computed embeddings; don't recompute on every request.
+
+None of this is exotic. It's just engineering discipline applied to a new medium. The teams shipping good AI features aren't using nicer models — they're treating the model as one component in a system they understand.
