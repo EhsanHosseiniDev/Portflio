@@ -2,7 +2,7 @@
   "name": "ehsan-portfolio",
   "type": "module",
   "version": "1.0.0",
-  "description": "Personal portfolio of Seyed Ehsan Hosseini",
+  "description": "Personal portfolio of Ehsan Hosseini",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
