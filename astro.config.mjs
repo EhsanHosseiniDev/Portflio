@@ -7,8 +7,8 @@ import sitemap from '@astrojs/sitemap';
 // Update these two for your GitHub Pages deployment:
 //   site: 'https://<your-username>.github.io'
 //   base: '/<your-repo-name>'   (or '/' if you use a user/organization site like username.github.io)
-const SITE = 'https://ehsanhosseini.github.io';
-const BASE = '/portfolio';
+const SITE = 'https://ehsanhosseinidev.github.io';
+const BASE = '/Portflio';
 
 export default defineConfig({
   site: SITE,
