@@ -21,13 +21,13 @@ export const ui = {
     'hero.tagline': 'I build maintainable, well-tested backends and modern web apps with .NET, clean architecture, and a soft spot for AI-assisted workflows.',
     'hero.cta.projects': 'View projects',
     'hero.cta.contact': 'Get in touch',
-    'hero.location': 'Kaiserslautern, Germany',
+    'hero.location': 'Germany',
     'hero.status': 'Open to opportunities',
 
     'about.eyebrow': 'About',
     'about.title': 'Engineer, builder, problem solver.',
     'about.body': "I'm a senior software engineer with 8+ years building and modernizing complex backend systems. I'm strongest in C#/.NET, Clean Architecture and DDD, and I happily own delivery end-to-end — from architecture and database tuning to the frontend layer. My background is in robotics, which still shapes how I think about systems: real inputs, real constraints, real consequences.",
-    'about.now': "Currently based in Kaiserslautern, Germany, working remotely with a Vancouver-based team on backend refactoring and LLM/RAG integration.",
+    'about.now': "Currently based in Germany, working remotely with a Vancouver-based team on backend refactoring and LLM/RAG integration.",
 
     'experience.eyebrow': 'Experience',
     'experience.title': 'Where I have built things.',
@@ -83,13 +83,13 @@ export const ui = {
     'hero.tagline': 'Ich baue wartbare, gut getestete Backends und moderne Web-Apps mit .NET, Clean Architecture — und einer Schwäche für KI-gestützte Workflows.',
     'hero.cta.projects': 'Projekte ansehen',
     'hero.cta.contact': 'Kontakt aufnehmen',
-    'hero.location': 'Kaiserslautern, Deutschland',
+    'hero.location': 'Deutschland',
     'hero.status': 'Offen für neue Chancen',
 
     'about.eyebrow': 'Über mich',
     'about.title': 'Ingenieur, Macher, Problemlöser.',
     'about.body': 'Senior Software Engineer mit über 8 Jahren Erfahrung im Aufbau und in der Modernisierung komplexer Backend-Systeme. Mein Schwerpunkt liegt auf C#/.NET, Clean Architecture und DDD — und ich verantworte gerne den gesamten Lieferzyklus, von der Architektur und Datenbank-Tuning bis zur Frontend-Schicht. Mein Hintergrund in der Robotik prägt bis heute meine Sicht auf Systeme: reale Inputs, reale Constraints, reale Konsequenzen.',
-    'about.now': 'Aktuell wohnhaft in Kaiserslautern und remote für ein Team in Vancouver tätig — Fokus: Backend-Refactoring und LLM/RAG-Integration.',
+    'about.now': 'Aktuell wohnhaft in Deutschland und remote für ein Team in Vancouver tätig — Fokus: Backend-Refactoring und LLM/RAG-Integration.',
 
     'experience.eyebrow': 'Berufserfahrung',
     'experience.title': 'Wo ich Dinge gebaut habe.',
