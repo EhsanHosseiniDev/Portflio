@@ -18,6 +18,11 @@ const t = useTranslations(lang);
 const siteName = 'Ehsan Hosseini';
 const fullTitle = title === siteName ? title : `${title} — ${siteName}`;
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+
+// Google Analytics (GA4). Paste your Measurement ID here (looks like "G-XXXXXXXXXX").
+// Get one at https://analytics.google.com → Admin → Data Streams → Web.
+// While empty, the tracking script is not loaded at all (e.g. local dev).
+const GA_MEASUREMENT_ID = import.meta.env.PUBLIC_GA_ID ?? '';
 ---
 
 <!doctype html>
@@ -38,6 +43,19 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
     <meta name="twitter:card" content="summary_large_image" />
 
     <meta name="theme-color" content="#05060f" />
+
+    {/* Google Analytics (GA4) — only loaded when a Measurement ID is configured */}
+    {GA_MEASUREMENT_ID && (
+      <>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}></script>
+        <script is:inline define:vars={{ GA_MEASUREMENT_ID }}>
+          window.dataLayer = window.dataLayer || [];
+          function gtag() { dataLayer.push(arguments); }
+          gtag('js', new Date());
+          gtag('config', GA_MEASUREMENT_ID);
+        </script>
+      </>
+    )}
 
     <!-- Smooth reveal-on-scroll observer (inlined to avoid an extra request) -->
     <script is:inline>
