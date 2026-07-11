@@ -18,6 +18,8 @@ Da ein großer Teil des Projekts aus rechenintensiver Mathematik besteht — Mat
 - **Core** — die Berechnungs-Engine, komplett ohne UI-Abhängigkeit
 - **Presentation** — die 3D-Darstellung und Benutzerinteraktion
 
+> ▶ **Live ausprobieren:** [ehsanhosseinidev.github.io/DeltaRobotProject](https://ehsanhosseinidev.github.io/DeltaRobotProject/) — der laufende Simulator, ganz ohne Installation.
+
 ## Die Presentation-Schicht: warum React Three Fiber?
 
 Für 3D-Darstellung im Web ist **Three.js** nach wie vor die leichtgewichtigste und ausgereifteste Option. Three.js jedoch direkt in einer React-Anwendung einzusetzen, führt in der Regel zu imperativem Code und manueller Verwaltung des Szenen-Lebenszyklus — was dem deklarativen Modell von React widerspricht. **React Three Fiber** schließt genau diese Lücke: Ich beschreibe die Three.js-Szene als React-Komponenten, und die Bibliothek übernimmt den Abgleich zwischen Szenengraph und Renderer. Das Ergebnis ist Code, der sich nahtlos in den Rest der Anwendung einfügt und sich leicht über State steuern lässt — entscheidend, wenn die Roboterbewegung live während der Ausführung einer Trajektorie animiert werden soll.
@@ -135,4 +137,7 @@ In diesem Teil habe ich die Gesamtarchitektur und insbesondere die Core-Schicht 
 
 **Im nächsten Teil** geht es um die Kompilierung dieser Schicht zu WebAssembly, die Brücke zwischen WASM und React sowie den Aufbau der Presentation-Schicht mit React Three Fiber.
 
-*Der vollständige Quellcode ist auf GitHub: [DeltaRobotProject / Delta.Core](https://github.com/EhsanHosseiniDev/DeltaRobotProject/tree/main/src/Delta.Core).*
+---
+
+- 🔗 **Live-Demo:** [ehsanhosseinidev.github.io/DeltaRobotProject](https://ehsanhosseinidev.github.io/DeltaRobotProject/)
+- 💻 **Quellcode:** [DeltaRobotProject / Delta.Core](https://github.com/EhsanHosseiniDev/DeltaRobotProject/tree/main/src/Delta.Core)
