@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, Icosahedron, MeshDistortMaterial, OrbitControls, Points, PointMaterial } from '@react-three/drei';
+import { Float, Icosahedron, OrbitControls, Points, PointMaterial } from '@react-three/drei';
 import { useMemo, useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
 
@@ -78,14 +78,9 @@ function MagentaParticles({ count = 600 }: { count?: number }) {
 }
 
 function Core() {
-  const ref = useRef<THREE.Mesh>(null);
   const wireRef = useRef<THREE.Mesh>(null);
 
   useFrame((state, delta) => {
-    if (ref.current) {
-      ref.current.rotation.x += delta * 0.15;
-      ref.current.rotation.y += delta * 0.2;
-    }
     if (wireRef.current) {
       wireRef.current.rotation.x -= delta * 0.05;
       wireRef.current.rotation.y -= delta * 0.08;
@@ -96,24 +91,24 @@ function Core() {
 
   return (
     <Float speed={1.4} rotationIntensity={0.4} floatIntensity={0.6}>
-      <mesh ref={ref}>
-        <icosahedronGeometry args={[1.2, 4]} />
-        <MeshDistortMaterial
-          color="#8b5cf6"
-          emissive="#22d3ee"
-          emissiveIntensity={0.4}
-          roughness={0.2}
-          metalness={0.6}
-          distort={0.45}
-          speed={2.2}
-        />
-      </mesh>
       <mesh ref={wireRef}>
         <icosahedronGeometry args={[1.7, 1]} />
-        <meshBasicMaterial color="#22d3ee" wireframe transparent opacity={0.18} />
+        <meshBasicMaterial
+          color="#22d3ee"
+          wireframe
+          transparent
+          opacity={0.08}
+          blending={THREE.AdditiveBlending}
+        />
       </mesh>
       <Icosahedron args={[2.3, 1]}>
-        <meshBasicMaterial color="#ec4899" wireframe transparent opacity={0.08} />
+        <meshBasicMaterial
+          color="#ec4899"
+          wireframe
+          transparent
+          opacity={0.05}
+          blending={THREE.AdditiveBlending}
+        />
       </Icosahedron>
     </Float>
   );
