@@ -18,7 +18,7 @@ export const ui = {
 
     'hero.greeting': 'Hi, I am',
     'hero.role': 'Senior Full-Stack Software Engineer',
-    'hero.tagline': 'I build maintainable, well-tested backends and modern web apps with .NET, clean architecture, and a soft spot for AI-assisted workflows.',
+    'hero.tagline': 'I build and scale maintainable, well-tested .NET backends for complex domains — clean architecture, DDD, event-driven and microservice systems, and production AI integration.',
     'hero.cta.projects': 'View projects',
     'hero.cta.contact': 'Get in touch',
     'hero.location': 'Germany',
@@ -26,8 +26,8 @@ export const ui = {
 
     'about.eyebrow': 'About',
     'about.title': 'Engineer, builder, problem solver.',
-    'about.body': "I'm a senior software engineer with 8+ years building and modernizing complex backend systems. I'm strongest in C#/.NET, Clean Architecture and DDD, and I happily own delivery end-to-end — from architecture and database tuning to the frontend layer. My background is in robotics, which still shapes how I think about systems: real inputs, real constraints, real consequences.",
-    'about.now': "Currently based in Germany, working remotely with a Vancouver-based team on backend refactoring and LLM/RAG integration.",
+    'about.body': "Senior software engineer specializing in backend .NET, building and scaling production systems for complex business domains — large-scale retail, property management, and trading platforms. My toolkit is Clean Architecture, SOLID, DDD, and a genuine test-first (TDD) discipline, applied to API design, event-driven and microservice-based systems, CI/CD pipelines, and EF Core / SQL Server performance tuning. Recently I've added production AI integration — RAG pipelines and natural-language interfaces inside enterprise .NET backends — as evidence of engineering breadth, not a job title. A solid grounding in OOP and design patterns means I pick up new stacks — C++, Java, or a frontend with Angular, Blazor, React, and Vue — as a challenge I look for rather than avoid.",
+    'about.now': "Based in Germany and open to backend / software engineering roles — on-site, hybrid, or remote.",
 
     'experience.eyebrow': 'Experience',
     'experience.title': 'Where I have built things.',
@@ -80,7 +80,7 @@ export const ui = {
 
     'hero.greeting': 'Hallo, ich bin',
     'hero.role': 'Senior Full-Stack Software Engineer',
-    'hero.tagline': 'Ich baue wartbare, gut getestete Backends und moderne Web-Apps mit .NET, Clean Architecture — und einer Schwäche für KI-gestützte Workflows.',
+    'hero.tagline': 'Ich baue und skaliere wartbare, gut getestete .NET-Backends für komplexe Domänen — Clean Architecture, DDD, event-getriebene und Microservice-Systeme sowie produktive KI-Integration.',
     'hero.cta.projects': 'Projekte ansehen',
     'hero.cta.contact': 'Kontakt aufnehmen',
     'hero.location': 'Deutschland',
@@ -88,8 +88,8 @@ export const ui = {
 
     'about.eyebrow': 'Über mich',
     'about.title': 'Ingenieur, Macher, Problemlöser.',
-    'about.body': 'Senior Software Engineer mit über 8 Jahren Erfahrung im Aufbau und in der Modernisierung komplexer Backend-Systeme. Mein Schwerpunkt liegt auf C#/.NET, Clean Architecture und DDD — und ich verantworte gerne den gesamten Lieferzyklus, von der Architektur und Datenbank-Tuning bis zur Frontend-Schicht. Mein Hintergrund in der Robotik prägt bis heute meine Sicht auf Systeme: reale Inputs, reale Constraints, reale Konsequenzen.',
-    'about.now': 'Aktuell wohnhaft in Deutschland und remote für ein Team in Vancouver tätig — Fokus: Backend-Refactoring und LLM/RAG-Integration.',
+    'about.body': 'Senior Software Engineer mit Schwerpunkt Backend-.NET — im Aufbau und in der Skalierung produktiver Systeme für komplexe Geschäftsdomänen: großflächiger Einzelhandel, Property-Management und Trading-Plattformen. Mein Werkzeugkasten: Clean Architecture, SOLID, DDD und eine echte Test-First-Disziplin (TDD) — angewendet auf API-Design, event-getriebene und Microservice-Systeme, CI/CD-Pipelines sowie EF Core / SQL-Server-Performance-Tuning. Zuletzt kam produktive KI-Integration hinzu — RAG-Pipelines und natürlichsprachliche Schnittstellen in Enterprise-.NET-Backends — als Beleg für technische Breite, nicht als Jobtitel. Ein solides Fundament in OOP und Design-Patterns lässt mich neue Stacks — C++, Java oder ein Frontend mit Angular, Blazor, React und Vue — als willkommene Herausforderung angehen.',
+    'about.now': 'Wohnhaft in Deutschland und offen für Backend- / Software-Engineering-Rollen — vor Ort, hybrid oder remote.',
 
     'experience.eyebrow': 'Berufserfahrung',
     'experience.title': 'Wo ich Dinge gebaut habe.',

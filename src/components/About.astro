@@ -64,6 +64,11 @@ const presentLabel = t('experience.present');
             <p class="font-mono text-xs text-ink-mute mt-1">
               {item.location}{item.remote ? ' · Remote' : ''}
             </p>
+            {item.summary && (
+              <p class="mt-3 text-sm text-ink-dim/90 leading-relaxed italic">
+                {item.summary[lang]}
+              </p>
+            )}
             <ul class="mt-4 space-y-2 text-ink-dim text-sm sm:text-base leading-relaxed">
               {item.bullets.map((b) => (
                 <li class="flex gap-2">
