@@ -11,7 +11,7 @@ lang: "en"
 
 About ten years ago, I built a Delta parallel robot for my bachelor's thesis. Back then, the software was written in **C# and WPF** for Windows, talking over USB to a custom C-coded board that drove the servo motors. The goal was straightforward: read G-code and execute the resulting trajectory on the Delta robot.
 
-These days, after years focused entirely on software engineering, I decided to go back to that project and rewrite its software layer from scratch — this time not for Windows, but for the **web**. And what made revisiting it genuinely tempting is how much the rise of AI-assisted development tools has compressed the timeline: work that used to take weeks now moves at a dramatically faster pace, so a side project like this is finally realistic to pull off in spare time. The goal is a browser-based simulation tool that shows the kinematics, trajectory, and motion of a Delta robot (and, eventually, other robot structures) in 3D, with no physical hardware required.
+These days, after years focused entirely on software engineering, I decided to go back to that project and rewrite its software layer from scratch — this time not for Windows, but for the **web** — and, of course, with AI-assisted development tools speeding things up considerably. The goal is a browser-based simulation tool that shows the kinematics, trajectory, and motion of a Delta robot (and, eventually, other robot structures) in 3D, with no physical hardware required.
 
 Since a large part of this project is heavy math — matrices, forward/inverse kinematics, velocity/acceleration profiles — I decided early on to split it into two fully separate layers:
 
