@@ -1,0 +1,138 @@
+---
+title: "Reviving an old thesis project: a Delta robot simulator for the web — Part 1: Architecture"
+summary: "Rebuilding a decade-old Delta parallel robot controller as a browser-based simulator, split into a C#/WebAssembly Core and a React Three Fiber presentation layer — and how the abstractions make adding a new robot kinematics a five-step, zero-touch change."
+cover: "/blog/robot-studio.png"
+publishedAt: 2026-07-11
+tags: ["robotics", "csharp", "webassembly", "threejs", "engineering"]
+lang: "en"
+---
+
+## Introduction
+
+About ten years ago, I built a Delta parallel robot for my bachelor's thesis. Back then, the software was written in **C# and WPF** for Windows, talking over USB to a custom C-coded board that drove the servo motors. The goal was straightforward: read G-code and execute the resulting trajectory on the Delta robot.
+
+These days, after years focused entirely on software engineering, I decided to go back to that project and rewrite its software layer from scratch — this time not for Windows, but for the **web**. The goal is a browser-based simulation tool that shows the kinematics, trajectory, and motion of a Delta robot (and, eventually, other robot structures) in 3D, with no physical hardware required.
+
+Since a large part of this project is heavy math — matrices, forward/inverse kinematics, velocity/acceleration profiles — I decided early on to split it into two fully separate layers:
+
+- **Core** — the computation engine, with zero UI dependencies
+- **Presentation** — the 3D rendering and interaction layer
+
+## The Presentation layer: why React Three Fiber
+
+For 3D rendering on the web, **Three.js** is still the lightest and most mature option available. But using Three.js directly inside a React app usually means falling back to imperative code and manually managing the scene's lifecycle — which clashes with React's declarative model. **React Three Fiber** closes exactly that gap: I describe the Three.js scene as React components, and the library handles reconciling the scene graph with the renderer. The result is code that fits naturally with the rest of the app and is easy to drive from state — which matters a lot when you need to animate a robot live while a trajectory is playing.
+
+## The Core layer: why C# compiled to WebAssembly
+
+The computational part of the project — solving kinematics, generating motion profiles, and sampling a trajectory at high frequency — needs to run thousands of times per second. JavaScript isn't a great fit for this kind of tight numerical work, especially anything that could benefit from vectorized, SIMD-friendly CPU operations. On the other hand, I've spent years working with C# and the .NET ecosystem, with a lot of experience in clean architecture and abstraction-driven design.
+
+So the plan was: write the entire computation engine as a standalone **.NET library** with no dependency on any UI or platform, then compile it to **WebAssembly** to run in the browser. .NET's WASM runtime and AOT compilation path have matured enough over the past few years to make this a solid choice both performance- and maintainability-wise — and the whole codebase is written with lightweight, allocation-light `struct`s, which keeps the door open for further vectorized optimization down the line.
+
+The bigger priority for me, though, was **extensibility**. Because my current focus is software engineering rather than robotics per se, I designed Core so that adding a new kinematics (a serial arm, a SCARA robot, or anything else) or defining a new servo with different hardware characteristics only requires implementing a handful of interfaces — without touching any existing code.
+
+## Core architecture: the key abstractions
+
+The whole engine is built around a small set of abstractions defined in [`Delta.Core/Abstractions`](https://github.com/EhsanHosseiniDev/DeltaRobotProject/tree/main/src/Delta.Core/Abstractions):
+
+```csharp
+public interface IServo
+{
+    string Model { get; }
+    double ResolutionDeg { get; }
+    double MaxVelocityDegPerSec { get; }
+    double MaxAccelerationDegPerSec2 { get; }
+    JointLimits Limits { get; }
+}
+
+public interface IKinematicsSolver
+{
+    JointAngles Inverse(Pose pose);
+    Pose Forward(JointAngles angles);
+}
+
+public interface IRobot
+{
+    IKinematicsSolver Kinematics { get; }
+    IReadOnlyList<IServo> Joints { get; }
+}
+
+public interface IMotionPlanner
+{
+    PlanResult Plan(Pose start, Pose target, double controlPeriodMs = 10.0);
+}
+
+public interface IRobotModel
+{
+    string Id { get; }
+    IRobot Create(RobotConfig config);
+    RobotStructure DescribeStructure(RobotConfig config);
+    RobotFrame ComputeFrame(RobotConfig config, JointAngles angles);
+    // ...
+}
+```
+
+> 🔗 **Browse the source:** [`Delta.Core/Abstractions`](https://github.com/EhsanHosseiniDev/DeltaRobotProject/tree/main/src/Delta.Core/Abstractions) · [`Delta.Core`](https://github.com/EhsanHosseiniDev/DeltaRobotProject/tree/main/src/Delta.Core)
+
+Each one has a narrow, well-defined job:
+
+- **`IServo`** describes a motor's physical characteristics — resolution, max velocity/acceleration, joint limits. A concrete servo like `St3215Servo` just returns those numbers.
+- **`IKinematicsSolver`** is the heart of the kinematics: `Inverse` turns a Cartesian point (`Pose`) into joint angles, and `Forward` does the reverse. For the Delta robot, `DeltaKinematics` implements this with the standard Delta kinematics equations based on the base/platform geometry and arm lengths.
+- **`IMotionPlanner`** produces a time-parameterized trajectory between two poses — computing a trapezoidal accelerate/cruise/decelerate profile and emitting a `Waypoint` at every control tick (e.g. every 10 ms).
+- **`IRobotModel`** is the "metadata" layer: a robot type's tunable parameters (arm lengths, etc.), how to build a concrete `IRobot` instance, and — crucial for the Presentation layer — how to describe the robot's 3D structure (nodes and links) for rendering in Three.js.
+
+## Two motion-planning strategies
+
+The project ships two `IMotionPlanner` implementations representing two different strategies:
+
+- **`LinearMotionPlanner`** keeps the end-effector on a straight Cartesian path (true linear motion, like a `G1` move), applies a trapezoidal speed profile along that path length, and calls inverse kinematics at every sample. If the path leaves the robot's workspace, the plan fails with a specific reason (`UnreachableException`).
+- **`SynchronizedPtpPlanner`** works in joint space instead — it times all the joints so they start and finish together (synchronized point-to-point motion), which fits fast, non-linear rapid moves (`G0`) better.
+
+## From G-code to trajectory
+
+The `Gcode` layer wires these two planners together. `GCodeParser` parses a G-code program with a small regex (handling `G0`/`G1`/`G90`/`G91`/`G20`/`G21` and X/Y/Z coordinates), and `GCodeTrajectoryPlanner` switches between `LinearMotionPlanner` and `SynchronizedPtpPlanner` per move, depending on whether it's a rapid or not, and stitches the resulting segments together with correct time offsets into a single continuous `Trajectory`.
+
+```text
+; square toolpath, then rapid home
+G90 G21
+G1 X40 Y40 Z-300
+G1 X-40 Y40 Z-300
+G1 X-40 Y-40 Z-300
+G1 X40 Y-40 Z-300
+G1 X40 Y40 Z-300
+G0 X0 Y0 Z-280
+```
+
+## Adding a new robot structure
+
+This is the part I think best shows the value of this architecture. The codebase already has two structures — `DeltaRobotModel` (a 3-DOF Delta) and `SerialArmRobotModel` (a 6-DOF serial arm) — and adding another one only takes **five steps, with zero changes to existing code**:
+
+1. **Define the geometry.** A simple `record` holding the robot's physical dimensions (like `DeltaGeometry`, which just holds four validated numbers: base side, platform side, upper arm, forearm).
+
+2. **Implement the kinematics.** A class implementing `IKinematicsSolver` with the Forward/Inverse math for that specific mechanical structure.
+
+3. **Build the robot.** A thin class implementing `IRobot` that just wires together geometry, kinematics, and the servo list — exactly like `DeltaRobot`.
+
+4. **Define the model.** An `IRobotModel` that returns the tunable parameters (for the UI), a home pose, a sample program, and — most importantly — `DescribeStructure`/`ComputeFrame`, describing how the robot's nodes and links should be drawn in 3D.
+
+5. **Register it in `RobotRegistry`.** One line:
+
+```csharp
+private static readonly IReadOnlyList<IRobotModel> Models =
+[
+    new DeltaRobotModel(),
+    new SerialArmRobotModel(),
+    new MyNewRobotModel(), // done.
+];
+```
+
+From that point on, the existing `IMotionPlanner` implementations (linear and synchronized PTP), the existing `GCodeTrajectoryPlanner`, and the whole Presentation layer work with the new robot **without any changes** — because all of them only talk to the abstractions (`IRobot`, `IKinematicsSolver`, `IServo`), never to the concrete Delta or serial-arm implementation. That's the **open/closed principle** I was aiming for in this layer: adding a capability means adding new code, not touching old code.
+
+The same logic applies to servos: a new `IServo` just describes four numbers (resolution, max velocity/acceleration, joint limits) and is immediately usable by both `LinearMotionPlanner` and `SynchronizedPtpPlanner`.
+
+## Wrapping up part one
+
+In this part I walked through the overall architecture and, in particular, the Core layer: the four key abstractions (`IServo`, `IKinematicsSolver`, `IMotionPlanner`, `IRobotModel`), the two motion-planning strategies (Cartesian-linear and joint-space synchronized), and the path from a raw G-code file to an executable trajectory.
+
+**Next up:** compiling this layer to WebAssembly, the bridge between WASM and React, and building the Presentation layer with React Three Fiber.
+
+*The full source is on GitHub: [DeltaRobotProject / Delta.Core](https://github.com/EhsanHosseiniDev/DeltaRobotProject/tree/main/src/Delta.Core).*

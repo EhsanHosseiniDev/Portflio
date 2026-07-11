@@ -17,6 +17,7 @@ const t = useTranslations('en');
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const fmtDate = (d: Date) => d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 const mins = Math.max(1, Math.round((entry.body ?? '').split(/\s+/).length / 220));
+const cover = entry.data.cover ? (entry.data.cover.startsWith('/') ? `${base}${entry.data.cover}` : entry.data.cover) : undefined;
 ---
 
 <BaseLayout
@@ -24,6 +25,7 @@ const mins = Math.max(1, Math.round((entry.body ?? '').split(/\s+/).length / 220
   description={entry.data.summary}
   lang="en"
   type="article"
+  image={entry.data.cover}
   publishedTime={entry.data.publishedAt.toISOString()}
   modifiedTime={entry.data.updatedAt?.toISOString()}
   tags={entry.data.tags}
@@ -48,6 +50,17 @@ const mins = Math.max(1, Math.round((entry.body ?? '').split(/\s+/).length / 220
     <div class="mt-6 flex flex-wrap gap-1.5">
       {entry.data.tags.map((tg) => <span class="chip text-xs">#{tg}</span>)}
     </div>
+
+    {cover && (
+      <img
+        src={cover}
+        alt={entry.data.title}
+        width="1200"
+        height="630"
+        loading="eager"
+        class="mt-10 w-full rounded-2xl border border-line"
+      />
+    )}
 
     <hr class="border-line my-10" />
 

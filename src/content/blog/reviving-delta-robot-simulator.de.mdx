@@ -1,0 +1,138 @@
+---
+title: "Ein altes Studienprojekt neu aufgelegt: Ein Delta-Roboter-Simulator fürs Web — Teil 1: Architektur"
+summary: "Ein zehn Jahre alter Delta-Parallelroboter-Controller wird als browserbasierter Simulator neu aufgebaut — mit einem C#/WebAssembly-Core und einer React-Three-Fiber-Präsentationsschicht. Und warum das Hinzufügen einer neuen Roboterkinematik dank sauberer Abstraktionen nur fünf Schritte braucht, ohne bestehenden Code anzufassen."
+cover: "/blog/robot-studio.png"
+publishedAt: 2026-07-11
+tags: ["robotik", "csharp", "webassembly", "threejs", "engineering"]
+lang: "de"
+---
+
+## Einleitung
+
+Vor etwa zehn Jahren habe ich für meine Bachelorarbeit einen Delta-Parallelroboter gebaut. Die Software war damals in **C# und WPF** für Windows geschrieben und kommunizierte über USB mit einer selbst entwickelten, in C programmierten Platine, die die Servomotoren ansteuerte. Das Ziel war klar umrissen: G-Code einlesen und die daraus resultierende Trajektorie auf dem Delta-Roboter ausführen.
+
+Nachdem ich mich all die Jahre danach voll auf Softwareentwicklung konzentriert habe, wollte ich zu diesem Projekt zurückkehren und die Softwareschicht komplett neu schreiben — diesmal nicht für Windows, sondern fürs **Web**. Ziel ist ein browserbasiertes Simulationswerkzeug, das Kinematik, Trajektorie und Bewegung eines Delta-Roboters (und perspektivisch weiterer Roboterstrukturen) in 3D zeigt, ganz ohne physische Hardware.
+
+Da ein großer Teil des Projekts aus rechenintensiver Mathematik besteht — Matrizen, Vorwärts-/Rückwärtskinematik, Geschwindigkeits- und Beschleunigungsprofile —, habe ich von Anfang an entschieden, das Projekt in zwei vollständig getrennte Schichten aufzuteilen:
+
+- **Core** — die Berechnungs-Engine, komplett ohne UI-Abhängigkeit
+- **Presentation** — die 3D-Darstellung und Benutzerinteraktion
+
+## Die Presentation-Schicht: warum React Three Fiber?
+
+Für 3D-Darstellung im Web ist **Three.js** nach wie vor die leichtgewichtigste und ausgereifteste Option. Three.js jedoch direkt in einer React-Anwendung einzusetzen, führt in der Regel zu imperativem Code und manueller Verwaltung des Szenen-Lebenszyklus — was dem deklarativen Modell von React widerspricht. **React Three Fiber** schließt genau diese Lücke: Ich beschreibe die Three.js-Szene als React-Komponenten, und die Bibliothek übernimmt den Abgleich zwischen Szenengraph und Renderer. Das Ergebnis ist Code, der sich nahtlos in den Rest der Anwendung einfügt und sich leicht über State steuern lässt — entscheidend, wenn die Roboterbewegung live während der Ausführung einer Trajektorie animiert werden soll.
+
+## Die Core-Schicht: warum C#, kompiliert zu WebAssembly?
+
+Der rechenintensive Teil des Projekts — das Lösen der Kinematikgleichungen, das Erzeugen von Bewegungsprofilen und das hochfrequente Abtasten einer Trajektorie — muss tausende Male pro Sekunde laufen. JavaScript ist für diese Art von eng getakteter numerischer Arbeit keine ideale Wahl, besonders wenn vektorisierte, SIMD-freundliche CPU-Operationen von Vorteil wären. Andererseits arbeite ich seit Jahren mit C# und dem .NET-Ökosystem und habe viel Erfahrung mit Clean Architecture und abstraktionsgetriebenem Design.
+
+Der Plan: die komplette Berechnungs-Engine als eigenständige **.NET-Bibliothek** schreiben, ohne jede Abhängigkeit von UI oder Plattform, und sie dann zu **WebAssembly** kompilieren, um sie im Browser auszuführen. Die .NET-WASM-Runtime und der AOT-Kompilierungspfad sind in den letzten Jahren so weit gereift, dass das sowohl performance- als auch wartungstechnisch eine solide Wahl ist — die gesamte Codebasis ist zudem mit leichtgewichtigen, allocation-armen `struct`s geschrieben, was den Weg für weitere Vektoroptimierungen offenhält.
+
+Wichtiger war mir aber die **Erweiterbarkeit**. Da mein aktueller Fokus auf Softwareentwicklung liegt und nicht primär auf Robotik, habe ich Core diesmal so entworfen, dass sich eine neue Kinematik (ein serieller Arm, ein SCARA-Roboter oder jede andere Struktur) oder ein neuer Servo mit anderen Hardware-Eigenschaften nur durch die Implementierung weniger Interfaces hinzufügen lässt — ohne bestehenden Code anzufassen.
+
+## Die Core-Architektur: die zentralen Abstraktionen
+
+Die gesamte Engine dreht sich um eine kleine Menge von Abstraktionen, definiert im Ordner [`Delta.Core/Abstractions`](https://github.com/EhsanHosseiniDev/DeltaRobotProject/tree/main/src/Delta.Core/Abstractions):
+
+```csharp
+public interface IServo
+{
+    string Model { get; }
+    double ResolutionDeg { get; }
+    double MaxVelocityDegPerSec { get; }
+    double MaxAccelerationDegPerSec2 { get; }
+    JointLimits Limits { get; }
+}
+
+public interface IKinematicsSolver
+{
+    JointAngles Inverse(Pose pose);
+    Pose Forward(JointAngles angles);
+}
+
+public interface IRobot
+{
+    IKinematicsSolver Kinematics { get; }
+    IReadOnlyList<IServo> Joints { get; }
+}
+
+public interface IMotionPlanner
+{
+    PlanResult Plan(Pose start, Pose target, double controlPeriodMs = 10.0);
+}
+
+public interface IRobotModel
+{
+    string Id { get; }
+    IRobot Create(RobotConfig config);
+    RobotStructure DescribeStructure(RobotConfig config);
+    RobotFrame ComputeFrame(RobotConfig config, JointAngles angles);
+    // ...
+}
+```
+
+> 🔗 **Quellcode ansehen:** [`Delta.Core/Abstractions`](https://github.com/EhsanHosseiniDev/DeltaRobotProject/tree/main/src/Delta.Core/Abstractions) · [`Delta.Core`](https://github.com/EhsanHosseiniDev/DeltaRobotProject/tree/main/src/Delta.Core)
+
+Jede Abstraktion hat eine klar abgegrenzte Aufgabe:
+
+- **`IServo`** beschreibt die physikalischen Eigenschaften eines Motors — Auflösung, maximale Geschwindigkeit/Beschleunigung, Gelenkgrenzen. Ein konkreter Servo wie `St3215Servo` gibt einfach diese Werte zurück.
+- **`IKinematicsSolver`** ist das Herzstück der Kinematik: `Inverse` wandelt einen kartesischen Punkt (`Pose`) in Gelenkwinkel um, `Forward` geht den umgekehrten Weg. Beim Delta-Roboter implementiert `DeltaKinematics` das mit den Standard-Kinematikgleichungen für Delta-Roboter, basierend auf der Basis-/Plattform-Geometrie und den Armlängen.
+- **`IMotionPlanner`** erzeugt eine zeitparametrisierte Trajektorie zwischen zwei Posen — berechnet ein trapezförmiges Beschleunigungs-/Konstantfahrt-/Bremsprofil und liefert bei jedem Regeltakt (z. B. alle 10 ms) einen `Waypoint`.
+- **`IRobotModel`** ist die „Metadaten"-Schicht: die einstellbaren Parameter eines Robotertyps (z. B. Armlängen), wie eine konkrete `IRobot`-Instanz erzeugt wird, und — entscheidend für die Presentation-Schicht — wie die 3D-Struktur des Roboters (Knoten und Verbindungen) für die Darstellung in Three.js beschrieben wird.
+
+## Zwei Strategien der Bewegungsplanung
+
+Das Projekt enthält zwei `IMotionPlanner`-Implementierungen, die zwei unterschiedliche Strategien abbilden:
+
+- **`LinearMotionPlanner`** hält den Endeffektor auf einer geraden kartesischen Bahn (echte Linearbewegung, wie ein `G1`-Befehl), wendet entlang dieser Bahnlänge ein trapezförmiges Geschwindigkeitsprofil an und ruft bei jedem Abtastpunkt die inverse Kinematik auf. Verlässt die Bahn den Arbeitsraum des Roboters, schlägt die Planung mit einer konkreten Fehlermeldung fehl (`UnreachableException`).
+- **`SynchronizedPtpPlanner`** arbeitet stattdessen im Gelenkraum — er timet alle Achsen so, dass sie gemeinsam starten und gemeinsam enden (synchronisierte Punkt-zu-Punkt-Bewegung), was für schnelle, nicht-lineare Eilgänge (`G0`) besser geeignet ist.
+
+## Von G-Code zur Trajektorie
+
+Die `Gcode`-Schicht verbindet diese beiden Planner. `GCodeParser` parst ein G-Code-Programm mit einem einfachen regulären Ausdruck (`G0`/`G1`/`G90`/`G91`/`G20`/`G21` sowie X/Y/Z-Koordinaten), und `GCodeTrajectoryPlanner` wechselt pro Bewegung — je nachdem, ob es sich um einen Eilgang handelt oder nicht — zwischen `LinearMotionPlanner` und `SynchronizedPtpPlanner` und fügt die einzelnen Segmente mit korrekten Zeitversätzen zu einer einzigen durchgängigen `Trajectory` zusammen.
+
+```text
+; quadratische Bahn, dann Eilgang zur Home-Position
+G90 G21
+G1 X40 Y40 Z-300
+G1 X-40 Y40 Z-300
+G1 X-40 Y-40 Z-300
+G1 X40 Y-40 Z-300
+G1 X40 Y40 Z-300
+G0 X0 Y0 Z-280
+```
+
+## Wie fügt man eine neue Roboterstruktur hinzu?
+
+Das ist der Teil, der den Wert dieser Architektur meiner Meinung nach am besten zeigt. Die Codebasis enthält bereits zwei Strukturen — `DeltaRobotModel` (ein 3-DOF-Delta) und `SerialArmRobotModel` (ein serieller 6-DOF-Arm) —, und eine weitere hinzuzufügen braucht nur diese **fünf Schritte, ohne eine einzige Änderung am bestehenden Code**:
+
+1. **Geometrie definieren.** Ein einfacher `record`, der die physikalischen Abmessungen des Roboters hält (wie `DeltaGeometry`, das nur vier validierte Zahlen speichert: Basisseite, Plattformseite, Oberarm, Unterarm).
+
+2. **Kinematik implementieren.** Eine Klasse, die `IKinematicsSolver` implementiert und die Forward-/Inverse-Mathematik für genau diese mechanische Struktur enthält.
+
+3. **Roboter zusammenbauen.** Eine schlanke Klasse, die `IRobot` implementiert und einfach Geometrie, Kinematik und die Servo-Liste zusammenführt — genau wie `DeltaRobot`.
+
+4. **Modell definieren.** Ein `IRobotModel`, das die einstellbaren Parameter (für die UI), eine Home-Pose, ein Beispielprogramm und — am wichtigsten — `DescribeStructure`/`ComputeFrame` liefert, also wie Knoten und Verbindungen dieses Roboters in 3D gezeichnet werden.
+
+5. **In `RobotRegistry` registrieren.** Nur eine Zeile:
+
+```csharp
+private static readonly IReadOnlyList<IRobotModel> Models =
+[
+    new DeltaRobotModel(),
+    new SerialArmRobotModel(),
+    new MyNewRobotModel(), // fertig.
+];
+```
+
+Ab diesem Moment funktionieren die bestehenden `IMotionPlanner`-Implementierungen (linear und synchronisiertes PTP), der bestehende `GCodeTrajectoryPlanner` und die gesamte Presentation-Schicht **ohne jede Änderung** mit dem neuen Roboter — weil alle nur mit den Abstraktionen (`IRobot`, `IKinematicsSolver`, `IServo`) sprechen, nie mit der konkreten Delta- oder Seriell-Arm-Implementierung. Genau das ist das **Open/Closed-Prinzip**, das ich in dieser Schicht verfolgt habe: Eine neue Fähigkeit bedeutet neuen Code, nicht das Anfassen von altem Code.
+
+Dieselbe Logik gilt für Servos: Ein neuer `IServo` beschreibt nur vier Zahlen (Auflösung, maximale Geschwindigkeit/Beschleunigung, Gelenkgrenzen) und ist sofort sowohl in `LinearMotionPlanner` als auch in `SynchronizedPtpPlanner` einsetzbar.
+
+## Zusammenfassung von Teil eins
+
+In diesem Teil habe ich die Gesamtarchitektur und insbesondere die Core-Schicht durchgegangen: die vier zentralen Abstraktionen (`IServo`, `IKinematicsSolver`, `IMotionPlanner`, `IRobotModel`), die zwei Strategien der Bewegungsplanung (kartesisch-linear und gelenkraum-synchronisiert) sowie den Weg von einer rohen G-Code-Datei zu einer ausführbaren Trajektorie.
+
+**Im nächsten Teil** geht es um die Kompilierung dieser Schicht zu WebAssembly, die Brücke zwischen WASM und React sowie den Aufbau der Presentation-Schicht mit React Three Fiber.
+
+*Der vollständige Quellcode ist auf GitHub: [DeltaRobotProject / Delta.Core](https://github.com/EhsanHosseiniDev/DeltaRobotProject/tree/main/src/Delta.Core).*
