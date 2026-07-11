@@ -18,7 +18,12 @@ export default defineConfig({
     react(),
     mdx(),
     tailwind({ applyBaseStyles: false }),
-    sitemap(),
+    sitemap({
+      i18n: {
+        defaultLocale: 'en',
+        locales: { en: 'en', de: 'de' },
+      },
+    }),
   ],
   i18n: {
     defaultLocale: 'en',

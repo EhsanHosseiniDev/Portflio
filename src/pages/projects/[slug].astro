@@ -17,7 +17,13 @@ const t = useTranslations('en');
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
-<BaseLayout title={entry.data.title} description={entry.data.summary} lang="en">
+<BaseLayout
+  title={entry.data.title}
+  description={entry.data.summary}
+  lang="en"
+  type="article"
+  tags={[...entry.data.tech, ...entry.data.tags]}
+>
   <article class="container-x py-16 max-w-3xl">
     <a href={`${base}/projects`} class="inline-flex items-center gap-2 text-sm text-ink-dim hover:text-neon-cyan mb-8">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="rtl-flip">
